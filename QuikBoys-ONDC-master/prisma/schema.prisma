@@ -1,0 +1,513 @@
+// =============================================================================
+// QuikBoys ONDC Module — Standalone Prisma Schema
+//
+// This schema contains ONLY the ONDC-related models, extracted from the
+// monolith for independent ONDC team development.
+//
+// In production, the monolith schema (QuikBoys repo) is the source of truth.
+// Any model changes here MUST be synced back to the monolith schema.
+//
+// The GstInvoice model references a User model (driver). A minimal User model
+// is included here for FK resolution during standalone development.
+// =============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Minimal User model (stub for GstInvoice FK — driver relation)
+// In production this is the full User model from the monolith.
+// ---------------------------------------------------------------------------
+model User {
+  id          String       @id @default(uuid())
+  name        String       @db.VarChar(255)
+  phone       String       @unique @db.VarChar(20)
+  email       String?      @unique @db.VarChar(255)
+  createdAt   DateTime     @default(now()) @map("created_at")
+  updatedAt   DateTime     @updatedAt @map("updated_at")
+  gstInvoices GstInvoice[] @relation("DriverGstInvoices")
+
+  @@map("users")
+}
+
+// ---------------------------------------------------------------------------
+// ONDC Core Models
+// ---------------------------------------------------------------------------
+
+/// Tracks all ONDC Beckn protocol messages (search, select, init, confirm, etc.)
+model OndcTransaction {
+  id              String                @id @default(uuid())
+  transactionId   String                @unique @map("transaction_id") @db.VarChar(100)
+  messageId       String                @map("message_id") @db.VarChar(100)
+  action          String                @db.VarChar(50)
+  bapId           String                @map("bap_id") @db.VarChar(100)
+  bapUri          String                @map("bap_uri") @db.VarChar(255)
+  bppId           String?               @map("bpp_id") @db.VarChar(100)
+  bppUri          String?               @map("bpp_uri") @db.VarChar(255)
+  domain          String                @default("ONDC:LOG") @db.VarChar(50)
+  city            String                @db.VarChar(20)
+  country         String                @default("IND") @db.VarChar(5)
+  requestPayload  Json                  @map("request_payload")
+  responsePayload Json?                 @map("response_payload")
+  callbackSent    Boolean               @default(false) @map("callback_sent")
+  callbackSentAt  DateTime?             @map("callback_sent_at")
+  callbackStatus  OndcCallbackStatus    @default(PENDING) @map("callback_status")
+  callbackError   String?               @map("callback_error")
+  retryCount      Int                   @default(0) @map("retry_count")
+  status          OndcTransactionStatus @default(RECEIVED)
+  errorCode       String?               @map("error_code") @db.VarChar(20)
+  errorMessage    String?               @map("error_message")
+  orderId         String?               @map("order_id")
+
+  // Network Observability Timing Fields
+  requestReceivedAt      DateTime? @map("request_received_at")
+  processingStartedAt    DateTime? @map("processing_started_at")
+  responseReadyAt        DateTime? @map("response_ready_at")
+  callbackInitiatedAt    DateTime? @map("callback_initiated_at")
+  callbackCompletedAt    DateTime? @map("callback_completed_at")
+  totalResponseTimeMs    Int?      @map("total_response_time_ms")
+  processingTimeMs       Int?      @map("processing_time_ms")
+  callbackResponseTimeMs Int?      @map("callback_response_time_ms")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([transactionId])
+  @@index([messageId])
+  @@index([action])
+  @@index([bapId])
+  @@index([orderId])
+  @@index([status])
+  @@index([createdAt])
+  @@index([transactionId, action])
+  @@map("ondc_transactions")
+}
+
+/// Tracks ONDC fulfillment state and details for orders
+model OndcFulfillment {
+  id                   String                   @id @default(uuid())
+  orderId              String                   @map("order_id")
+  fulfillmentId        String                   @map("fulfillment_id") @db.VarChar(100)
+  type                 String                   @default("Delivery") @db.VarChar(50)
+  state                OndcFulfillmentState     @default(Pending)
+  stateCode            String                   @map("state_code") @db.VarChar(50)
+  tracking             Boolean                  @default(true)
+  pickupGps            String?                  @map("pickup_gps") @db.VarChar(50)
+  pickupAddress        Json?                    @map("pickup_address")
+  pickupContactName    String?                  @map("pickup_contact_name") @db.VarChar(255)
+  pickupContactPhone   String?                  @map("pickup_contact_phone") @db.VarChar(20)
+  pickupTime           DateTime?                @map("pickup_time")
+  pickupInstructions   String?                  @map("pickup_instructions")
+  deliveryGps          String?                  @map("delivery_gps") @db.VarChar(50)
+  deliveryAddress      Json?                    @map("delivery_address")
+  deliveryContactName  String?                  @map("delivery_contact_name") @db.VarChar(255)
+  deliveryContactPhone String?                  @map("delivery_contact_phone") @db.VarChar(20)
+  deliveryTime         DateTime?                @map("delivery_time")
+  deliveryInstructions String?                  @map("delivery_instructions")
+  agentName            String?                  @map("agent_name") @db.VarChar(255)
+  agentPhone           String?                  @map("agent_phone") @db.VarChar(20)
+  vehicleCategory      String?                  @map("vehicle_category") @db.VarChar(50)
+  vehicleRegistration  String?                  @map("vehicle_registration") @db.VarChar(50)
+  trackingUrl          String?                  @map("tracking_url")
+  currentLocationGps   String?                  @map("current_location_gps") @db.VarChar(50)
+  locationUpdatedAt    DateTime?                @map("location_updated_at")
+  createdAt            DateTime                 @default(now()) @map("created_at")
+  updatedAt            DateTime                 @updatedAt @map("updated_at")
+  stateHistory         OndcFulfillmentHistory[]
+
+  @@unique([orderId, fulfillmentId])
+  @@index([orderId])
+  @@index([fulfillmentId])
+  @@index([state])
+  @@index([createdAt])
+  @@map("ondc_fulfillments")
+}
+
+/// Tracks ONDC fulfillment state history for audit
+model OndcFulfillmentHistory {
+  id            String               @id @default(uuid())
+  fulfillmentId String               @map("fulfillment_id")
+  previousState OndcFulfillmentState @map("previous_state")
+  newState      OndcFulfillmentState @map("new_state")
+  stateCode     String               @map("state_code") @db.VarChar(50)
+  changedBy     String?              @map("changed_by") @db.VarChar(100)
+  notes         String?
+  locationGps   String?              @map("location_gps") @db.VarChar(50)
+  createdAt     DateTime             @default(now()) @map("created_at")
+  fulfillment   OndcFulfillment      @relation(fields: [fulfillmentId], references: [id], onDelete: Cascade)
+
+  @@index([fulfillmentId])
+  @@index([createdAt])
+  @@map("ondc_fulfillment_history")
+}
+
+/// Stores ONDC catalog/pricing information
+model OndcCatalog {
+  id             String   @id @default(uuid())
+  providerId     String   @map("provider_id") @db.VarChar(100)
+  itemId         String   @map("item_id") @db.VarChar(100)
+  categoryId     String   @map("category_id") @db.VarChar(50)
+  descriptor     Json
+  price          Json
+  fulfillmentIds String[] @map("fulfillment_ids")
+  locationIds    String[] @map("location_ids")
+  isActive       Boolean  @default(true) @map("is_active")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+
+  @@unique([providerId, itemId])
+  @@index([providerId])
+  @@index([categoryId])
+  @@index([isActive])
+  @@map("ondc_catalog")
+}
+
+/// Tracks ONDC subscription verification attempts
+model OndcSubscription {
+  id                String                 @id @default(uuid())
+  subscriberId      String                 @map("subscriber_id") @db.VarChar(255)
+  challengeReceived String                 @map("challenge_received")
+  answerSent        String?                @map("answer_sent")
+  status            OndcSubscriptionStatus @default(PENDING)
+  errorMessage      String?                @map("error_message")
+  receivedAt        DateTime               @map("received_at")
+  respondedAt       DateTime?              @map("responded_at")
+  createdAt         DateTime               @default(now()) @map("created_at")
+  updatedAt         DateTime               @updatedAt @map("updated_at")
+
+  @@index([subscriberId])
+  @@index([status])
+  @@index([receivedAt])
+  @@map("ondc_subscriptions")
+}
+
+// ---------------------------------------------------------------------------
+// RSP Models (Reconciliation, Settlement & Payouts)
+// ---------------------------------------------------------------------------
+
+/// Stores reconciliation records from ONDC network for daily settlements
+model ReconciliationRecord {
+  id                   String                    @id @default(uuid())
+  reconciliationId     String                    @unique @map("reconciliation_id") @db.VarChar(100)
+  ondcTransactionId    String?                   @map("ondc_transaction_id") @db.VarChar(100)
+  ondcOrderId          String?                   @map("ondc_order_id") @db.VarChar(100)
+  networkParticipantId String                    @map("network_participant_id") @db.VarChar(100)
+  periodStart          DateTime                  @map("period_start")
+  periodEnd            DateTime                  @map("period_end")
+  ondcAmount           Decimal                   @map("ondc_amount") @db.Decimal(12, 2)
+  ondcTaxAmount        Decimal?                  @map("ondc_tax_amount") @db.Decimal(12, 2)
+  ondcCommission       Decimal?                  @map("ondc_commission") @db.Decimal(12, 2)
+  ondcNetAmount        Decimal                   @map("ondc_net_amount") @db.Decimal(12, 2)
+  internalOrderId      String?                   @map("internal_order_id")
+  internalAmount       Decimal?                  @map("internal_amount") @db.Decimal(12, 2)
+  status               ReconciliationStatus      @default(PENDING)
+  matchStatus          ReconciliationMatchStatus @default(UNMATCHED) @map("match_status")
+  discrepancyAmount    Decimal?                  @map("discrepancy_amount") @db.Decimal(12, 2)
+  discrepancyReason    String?                   @map("discrepancy_reason") @db.VarChar(500)
+  settlementBatchId    String?                   @map("settlement_batch_id")
+  rawPayload           Json                      @map("raw_payload")
+  reconciledAt         DateTime?                 @map("reconciled_at")
+  createdAt            DateTime                  @default(now()) @map("created_at")
+  updatedAt            DateTime                  @updatedAt @map("updated_at")
+  settlementBatch      SettlementBatch?          @relation(fields: [settlementBatchId], references: [id])
+
+  @@index([ondcOrderId])
+  @@index([internalOrderId])
+  @@index([networkParticipantId])
+  @@index([status])
+  @@index([matchStatus])
+  @@index([periodStart, periodEnd])
+  @@map("reconciliation_records")
+}
+
+/// Stores settlement batches for processing payouts
+model SettlementBatch {
+  id                    String                 @id @default(uuid())
+  batchId               String                 @unique @map("batch_id") @db.VarChar(100)
+  networkParticipantId  String                 @map("network_participant_id") @db.VarChar(100)
+  periodStart           DateTime               @map("period_start")
+  periodEnd             DateTime               @map("period_end")
+  totalAmount           Decimal                @map("total_amount") @db.Decimal(12, 2)
+  totalTransactions     Int                    @default(0) @map("total_transactions")
+  reconciledAmount      Decimal                @default(0) @map("reconciled_amount") @db.Decimal(12, 2)
+  discrepancyAmount     Decimal                @default(0) @map("discrepancy_amount") @db.Decimal(12, 2)
+  settlementMethod      String?                @map("settlement_method") @db.VarChar(50)
+  settlementType        String?                @map("settlement_type") @db.VarChar(50)
+  status                SettlementBatchStatus  @default(PENDING)
+  processedAt           DateTime?              @map("processed_at")
+  paymentReferenceId    String?                @map("payment_reference_id") @db.VarChar(100)
+  metadata              Json?
+  createdAt             DateTime               @default(now()) @map("created_at")
+  updatedAt             DateTime               @updatedAt @map("updated_at")
+  gstInvoices           GstInvoice[]           @relation("BatchGstInvoices")
+  reconciliationRecords ReconciliationRecord[]
+
+  @@index([networkParticipantId])
+  @@index([status])
+  @@index([periodStart, periodEnd])
+  @@map("settlement_batches")
+}
+
+/// Stores discrepancies found during reconciliation
+model SettlementDiscrepancy {
+  id               String                      @id @default(uuid())
+  reconciliationId String?                     @map("reconciliation_id") @db.VarChar(100)
+  ondcOrderId      String?                     @map("ondc_order_id") @db.VarChar(100)
+  internalOrderId  String?                     @map("internal_order_id")
+  discrepancyType  DiscrepancyType             @map("discrepancy_type")
+  ondcAmount       Decimal                     @map("ondc_amount") @db.Decimal(12, 2)
+  internalAmount   Decimal                     @map("internal_amount") @db.Decimal(12, 2)
+  differenceAmount Decimal                     @map("difference_amount") @db.Decimal(12, 2)
+  status           SettlementDiscrepancyStatus @default(OPEN)
+  resolution       String?
+  resolvedAt       DateTime?                   @map("resolved_at")
+  metadata         Json?
+  createdAt        DateTime                    @default(now()) @map("created_at")
+  updatedAt        DateTime                    @updatedAt @map("updated_at")
+
+  @@index([ondcOrderId])
+  @@index([internalOrderId])
+  @@index([status])
+  @@index([discrepancyType])
+  @@map("settlement_discrepancies")
+}
+
+// ---------------------------------------------------------------------------
+// IGM Models (Issue & Grievance Management)
+// ---------------------------------------------------------------------------
+
+model OndcIssue {
+  id                     String                @id @default(uuid())
+  issueId                String                @unique @map("issue_id") @db.VarChar(100)
+  transactionId          String                @map("transaction_id") @db.VarChar(100)
+  messageId              String                @map("message_id") @db.VarChar(100)
+  orderId                String                @map("order_id") @db.VarChar(100)
+  bapId                  String                @map("bap_id") @db.VarChar(100)
+  bapUri                 String                @map("bap_uri") @db.VarChar(255)
+  category               OndcIssueCategory     @default(ORDER)
+  subCategory            OndcIssueSubCategory  @map("sub_category")
+  status                 OndcIssueStatus       @default(OPEN)
+  issueType              String                @default("ISSUE") @map("issue_type") @db.VarChar(20)
+  complainantName        String                @map("complainant_name") @db.VarChar(255)
+  complainantPhone       String                @map("complainant_phone") @db.VarChar(20)
+  complainantEmail       String?               @map("complainant_email") @db.VarChar(255)
+  description            String                @db.VarChar(1000)
+  longDescription        String?               @map("long_description")
+  sourceType             String                @map("source_type") @db.VarChar(50)
+  sourceParticipantId    String                @map("source_participant_id") @db.VarChar(100)
+  expectedResponseTime   String?               @map("expected_response_time") @db.VarChar(20)
+  expectedResolutionTime String?               @map("expected_resolution_time") @db.VarChar(20)
+  resolutionType         OndcResolutionType?   @map("resolution_type")
+  resolutionStatus       OndcResolutionStatus? @map("resolution_status")
+  resolutionDescription  String?               @map("resolution_description") @db.VarChar(1000)
+  refundAmount           Decimal?              @map("refund_amount") @db.Decimal(12, 2)
+  rating                 String?               @db.VarChar(20)
+  requestPayload         Json                  @map("request_payload")
+  responsePayload        Json?                 @map("response_payload")
+  createdAt              DateTime              @default(now()) @map("created_at")
+  updatedAt              DateTime              @updatedAt @map("updated_at")
+  resolvedAt             DateTime?             @map("resolved_at")
+  closedAt               DateTime?             @map("closed_at")
+  actions                OndcIssueAction[]
+
+  @@index([issueId])
+  @@index([transactionId])
+  @@index([orderId])
+  @@index([bapId])
+  @@index([status])
+  @@index([category])
+  @@index([createdAt])
+  @@index([orderId, status])
+  @@map("ondc_issues")
+}
+
+/// ONDC Issue Actions - Tracks all actions taken on an issue
+model OndcIssueAction {
+  id        String    @id @default(uuid())
+  issueId   String    @map("issue_id") @db.VarChar(100)
+  action    String    @db.VarChar(50)
+  shortDesc String    @map("short_desc") @db.VarChar(500)
+  updatedBy String    @map("updated_by") @db.VarChar(100)
+  createdAt DateTime  @default(now()) @map("created_at")
+  issue     OndcIssue @relation(fields: [issueId], references: [issueId], onDelete: Cascade)
+
+  @@index([issueId])
+  @@index([createdAt])
+  @@map("ondc_issue_actions")
+}
+
+/// GST Invoice - B2B Tax Invoice for ONDC settlements
+model GstInvoice {
+  id                String           @id @default(uuid())
+  invoiceNumber     String           @unique @map("invoice_number") @db.VarChar(50)
+  invoiceDate       DateTime         @map("invoice_date")
+  dueDate           DateTime?        @map("due_date")
+  driverId          String           @map("driver_id")
+  settlementBatchId String?          @map("settlement_batch_id")
+  sellerGstin       String           @map("seller_gstin") @db.VarChar(15)
+  buyerGstin        String?          @map("buyer_gstin") @db.VarChar(15)
+  subtotal          Decimal          @db.Decimal(12, 2)
+  cgstAmount        Decimal          @map("cgst_amount") @db.Decimal(10, 2)
+  sgstAmount        Decimal          @map("sgst_amount") @db.Decimal(10, 2)
+  igstAmount        Decimal          @map("igst_amount") @db.Decimal(10, 2)
+  totalTax          Decimal          @map("total_tax") @db.Decimal(10, 2)
+  grandTotal        Decimal          @map("grand_total") @db.Decimal(12, 2)
+  placeOfSupply     String           @map("place_of_supply") @db.VarChar(50)
+  reverseCharge     Boolean          @default(false) @map("reverse_charge")
+  status            GstInvoiceStatus @default(GENERATED)
+  pdfUrl            String?          @map("pdf_url") @db.VarChar(500)
+  metadata          Json?
+  createdAt         DateTime         @default(now()) @map("created_at")
+  updatedAt         DateTime         @updatedAt @map("updated_at")
+  driver            User             @relation("DriverGstInvoices", fields: [driverId], references: [id])
+  settlementBatch   SettlementBatch? @relation("BatchGstInvoices", fields: [settlementBatchId], references: [id])
+
+  @@index([driverId])
+  @@index([settlementBatchId])
+  @@index([invoiceDate])
+  @@index([status])
+  @@map("gst_invoices")
+}
+
+// ---------------------------------------------------------------------------
+// Enums
+// ---------------------------------------------------------------------------
+
+enum OndcTransactionStatus {
+  RECEIVED
+  PROCESSING
+  COMPLETED
+  FAILED
+  TIMEOUT
+}
+
+enum OndcCallbackStatus {
+  PENDING
+  SENT
+  ACKNOWLEDGED
+  FAILED
+  RETRYING
+}
+
+enum OndcFulfillmentState {
+  Pending
+  Searching_for_Agent @map("Searching-for-Agent")
+  Agent_assigned      @map("Agent-assigned")
+  At_pickup           @map("At-pickup")
+  Order_picked_up     @map("Order-picked-up")
+  In_transit          @map("In-transit")
+  At_delivery         @map("At-delivery")
+  Order_delivered     @map("Order-delivered")
+  Cancelled
+  RTO_Initiated       @map("RTO-Initiated")
+  RTO_Delivered       @map("RTO-Delivered")
+  RTO_Disposed        @map("RTO-Disposed")
+}
+
+enum ReconciliationStatus {
+  PENDING
+  PROCESSING
+  RECONCILED
+  SETTLED
+  FAILED
+  DISPUTED
+}
+
+enum ReconciliationMatchStatus {
+  UNMATCHED
+  MATCHED
+  PARTIAL_MATCH
+  MISSING_INTERNAL
+  MISSING_ONDC
+  AMOUNT_MISMATCH
+}
+
+enum SettlementBatchStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  PARTIAL
+}
+
+enum DiscrepancyType {
+  AMOUNT_MISMATCH
+  MISSING_TRANSACTION
+  STATUS_MISMATCH
+  COD_AMOUNT_MISMATCH
+}
+
+enum SettlementDiscrepancyStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  ESCALATED
+}
+
+enum OndcSubscriptionStatus {
+  PENDING
+  VERIFIED
+  FAILED
+}
+
+enum OndcIssueCategory {
+  ORDER
+  FULFILLMENT
+  ITEM
+  PAYMENT
+  AGENT
+}
+
+enum OndcIssueSubCategory {
+  ORD01
+  ORD02
+  ORD03
+  ORD04
+  FLM01
+  FLM02
+  FLM03
+  ITM01
+  ITM02
+  ITM03
+  ITM04
+  PMT01
+  PMT02
+  PMT03
+  AGT01
+  AGT02
+}
+
+enum OndcIssueStatus {
+  OPEN
+  ACKNOWLEDGED
+  PROCESSING
+  RESOLVED
+  CLOSED
+}
+
+enum OndcResolutionType {
+  REFUND
+  REPLACEMENT
+  RETURN
+  CANCEL
+  NO_ACTION @map("NO-ACTION")
+}
+
+enum OndcResolutionStatus {
+  ACCEPTED
+  REJECTED
+}
+
+enum GstInvoiceStatus {
+  GENERATED
+  SENT
+  PAID
+  CANCELLED
+  DISPUTED
+}
