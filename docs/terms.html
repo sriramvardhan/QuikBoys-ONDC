@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QuikBoys – Platform Terms & Policies</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --orange: #FF5C00;
+    --dark: #0F0F0F;
+    --mid: #1A1A1A;
+    --border: #2A2A2A;
+    --text: #E8E8E8;
+    --muted: #888;
+    --card: #161616;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--dark);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    line-height: 1.75;
+  }
+  header {
+    background: var(--mid);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .logo {
+    width: 36px; height: 36px;
+    background: var(--orange);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display', serif;
+    font-size: 18px; color: white; font-weight: bold;
+  }
+  header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px;
+    color: white;
+  }
+  header span {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    background: var(--border);
+    padding: 4px 12px;
+    border-radius: 20px;
+  }
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 60px 40px;
+  }
+  .hero {
+    margin-bottom: 60px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px;
+    color: white;
+    line-height: 1.2;
+    margin-bottom: 16px;
+  }
+  .hero h2 span { color: var(--orange); }
+  .hero p { color: var(--muted); max-width: 500px; }
+  .meta {
+    display: flex; gap: 24px; margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .meta-item { font-size: 13px; color: var(--muted); }
+  .meta-item strong { color: var(--text); }
+  nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 48px;
+  }
+  nav a {
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+  nav a:hover { border-color: var(--orange); color: var(--orange); }
+  .section {
+    margin-bottom: 48px;
+    padding: 32px;
+    background: var(--card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+  }
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    width: 28px; height: 28px;
+    background: var(--orange);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600; color: white;
+    flex-shrink: 0;
+  }
+  .section h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 22px;
+    color: white;
+  }
+  .section p { color: var(--muted); margin-bottom: 12px; }
+  .section p:last-child { margin-bottom: 0; }
+  .policy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .policy-item {
+    background: var(--mid);
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid var(--border);
+  }
+  .policy-item h4 {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--orange);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .policy-item p {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 13px;
+  }
+  th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--mid);
+    color: var(--orange);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 11px;
+    border-bottom: 1px solid var(--border);
+  }
+  td {
+    padding: 10px 14px;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  tr:last-child td { border-bottom: none; }
+  td:first-child { color: var(--text); font-weight: 500; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .badge-green { background: #0D2E1A; color: #34D170; }
+  .badge-yellow { background: #2E2200; color: #F0B429; }
+  .badge-red { background: #2E0A0A; color: #F87171; }
+  .contact-box {
+    margin-top: 20px;
+    padding: 20px;
+    background: var(--mid);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+  .contact-item { font-size: 13px; }
+  .contact-item label { color: var(--muted); display: block; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .contact-item a { color: var(--orange); text-decoration: none; }
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 32px 40px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  footer strong { color: var(--text); }
+  @media (max-width: 600px) {
+    .container { padding: 32px 20px; }
+    .policy-grid { grid-template-columns: 1fr; }
+    header { padding: 16px 20px; }
+    .hero h2 { font-size: 28px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Q</div>
+  <h1>QuikBoys</h1>
+  <span>ONDC Logistics Platform</span>
+</header>
+
+<div class="container">
+
+  <div class="hero">
+    <h2>Platform Terms<br>& <span>Policies</span></h2>
+    <p>Governing terms for orders, refunds, cancellations, grievance redressal, and payouts on the QuikBoys logistics network.</p>
+    <div class="meta">
+      <div class="meta-item"><strong>Entity:</strong> OMLVS Private Limited</div>
+      <div class="meta-item"><strong>GSTIN:</strong> 29AADCO7449R1ZF</div>
+      <div class="meta-item"><strong>Effective:</strong> March 2026</div>
+      <div class="meta-item"><strong>Domain:</strong> Logistics (B2C) · ONDC:LOG10</div>
+    </div>
+  </div>
+
+  <nav>
+    <a href="#orders">Orders</a>
+    <a href="#refunds">Refunds</a>
+    <a href="#cancellations">Cancellations</a>
+    <a href="#igm">Grievance (IGM)</a>
+    <a href="#payouts">Payouts</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <!-- ORDERS -->
+  <div class="section" id="orders">
+    <div class="section-header">
+      <div class="section-num">1</div>
+      <h3>Order Policy</h3>
+    </div>
+    <p>QuikBoys provides hyperlocal last-mile delivery services across Hyderabad and Bangalore through the ONDC network.</p>
+    <div class="policy-grid">
+      <div class="policy-item">
+        <h4>Order Acceptance</h4>
+        <p>Orders are accepted 24/7. Confirmation is sent via ACK response on the ONDC network within 30 seconds.</p>
+      </div>
+      <div class="policy-item">
+        <h4>Service Area</h4>
+        <p>Currently operational in Hyderabad IT Corridor (Kondapur, Gachibowli, Hitech City) and select Bangalore clusters.</p>
+      </div>
+      <div class="policy-item">
+        <h4>Delivery SLA</h4>
+        <p>Immediate: 45–90 min · Same Day: by 9 PM · Next Day: by 12 PM next business day.</p>
+      </div>
+      <div class="policy-item">
+        <h4>Order Tracking</h4>
+        <p>Real-time tracking available via ONDC /track endpoint and WhatsApp updates throughout delivery lifecycle.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- REFUNDS -->
+  <div class="section" id="refunds">
+    <div class="section-header">
+      <div class="section-num">2</div>
+      <h3>Refund Policy</h3>
+    </div>
+    <p>Refunds are processed based on the nature of the issue and delivery outcome.</p>
+    <table>
+      <tr>
+        <th>Scenario</th>
+        <th>Refund Eligibility</th>
+        <th>Timeline</th>
+      </tr>
+      <tr>
+        <td>Order not picked up</td>
+        <td><span class="badge badge-green">Full Refund</span></td>
+        <td>Within 24 hours</td>
+      </tr>
+      <tr>
+        <td>Item damaged in transit</td>
+        <td><span class="badge badge-green">Full Refund</span></td>
+        <td>Within 48 hours of complaint</td>
+      </tr>
+      <tr>
+        <td>Wrong item delivered</td>
+        <td><span class="badge badge-green">Full Refund</span></td>
+        <td>Within 48 hours of complaint</td>
+      </tr>
+      <tr>
+        <td>Delayed delivery (>2x SLA)</td>
+        <td><span class="badge badge-yellow">Partial Refund</span></td>
+        <td>Within 48 hours</td>
+      </tr>
+      <tr>
+        <td>Customer cancelled before pickup</td>
+        <td><span class="badge badge-green">Full Refund</span></td>
+        <td>Within 24 hours</td>
+      </tr>
+      <tr>
+        <td>Customer cancelled after pickup</td>
+        <td><span class="badge badge-red">No Refund</span></td>
+        <td>N/A</td>
+      </tr>
+    </table>
+    <p style="margin-top:16px; font-size:13px;">Refunds are credited to the original payment method via Cashfree. UPI refunds: 2–4 hours. Card refunds: 5–7 business days.</p>
+  </div>
+
+  <!-- CANCELLATIONS -->
+  <div class="section" id="cancellations">
+    <div class="section-header">
+      <div class="section-num">3</div>
+      <h3>Cancellation Policy</h3>
+    </div>
+    <p>Cancellation terms apply from the time of order confirmation on the ONDC network.</p>
+    <table>
+      <tr>
+        <th>Cancellation Window</th>
+        <th>Cancellation Fee</th>
+        <th>Who Can Cancel</th>
+      </tr>
+      <tr>
+        <td>Within 5 min of confirmation</td>
+        <td><span class="badge badge-green">No Fee</span></td>
+        <td>Buyer / Seller</td>
+      </tr>
+      <tr>
+        <td>Before DP assigned</td>
+        <td><span class="badge badge-green">No Fee</span></td>
+        <td>Buyer / Seller</td>
+      </tr>
+      <tr>
+        <td>After DP assigned, before pickup</td>
+        <td>₹15 cancellation fee</td>
+        <td>Buyer only</td>
+      </tr>
+      <tr>
+        <td>After pickup</td>
+        <td>Full delivery charge</td>
+        <td>Not permitted</td>
+      </tr>
+      <tr>
+        <td>System/Platform cancellation</td>
+        <td><span class="badge badge-green">No Fee</span></td>
+        <td>QuikBoys</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- IGM -->
+  <div class="section" id="igm">
+    <div class="section-header">
+      <div class="section-num">4</div>
+      <h3>Grievance Redressal (IGM)</h3>
+    </div>
+    <p>QuikBoys follows the ONDC Issue & Grievance Management (IGM) framework for all complaints and disputes.</p>
+    <div class="policy-grid">
+      <div class="policy-item">
+        <h4>Raise an Issue</h4>
+        <p>Via ONDC /issue endpoint, WhatsApp on +91 89045 38989, or email grievance@quikboys.com.</p>
+      </div>
+      <div class="policy-item">
+        <h4>Response SLA</h4>
+        <p>Initial acknowledgement within 1 hour. Resolution within 48 hours for standard issues.</p>
+      </div>
+      <div class="policy-item">
+        <h4>Escalation</h4>
+        <p>Unresolved issues escalate to ONDC network grievance officer after 48 hours.</p>
+      </div>
+      <div class="policy-item">
+        <h4>Issue Categories</h4>
+        <p>ITEM (wrong/damaged), FULFILLMENT (late/missing), PAYMENT (refund disputes), IGM (platform issues).</p>
+      </div>
+    </div>
+    <p style="margin-top:16px; font-size:13px;"><strong style="color:var(--text)">Grievance Officer:</strong> Balaji Chennupati · <a href="mailto:grievance@quikboys.com" style="color:var(--orange)">grievance@quikboys.com</a> · Response within 48 hours.</p>
+  </div>
+
+  <!-- PAYOUTS -->
+  <div class="section" id="payouts">
+    <div class="section-header">
+      <div class="section-num">5</div>
+      <h3>Payout Policy</h3>
+    </div>
+    <p>Settlement terms for vendor partners and delivery partners on the QuikBoys network.</p>
+    <table>
+      <tr>
+        <th>Party</th>
+        <th>Settlement Basis</th>
+        <th>Settlement Window</th>
+        <th>Method</th>
+      </tr>
+      <tr>
+        <td>Vendor Partners</td>
+        <td>Per order delivery</td>
+        <td>T+2 business days</td>
+        <td>NEFT / UPI</td>
+      </tr>
+      <tr>
+        <td>Delivery Partners (Daily)</td>
+        <td>75% of daily earnings</td>
+        <td>Next business day</td>
+        <td>ICICI CAS / UPI</td>
+      </tr>
+      <tr>
+        <td>Delivery Partners (Weekly)</td>
+        <td>25% of weekly earnings</td>
+        <td>Every Monday</td>
+        <td>ICICI CAS / UPI</td>
+      </tr>
+      <tr>
+        <td>ONDC Settlement</td>
+        <td>Sale amount post-delivery</td>
+        <td>P2D (2 business days)</td>
+        <td>NEFT</td>
+      </tr>
+    </table>
+    <p style="margin-top:16px; font-size:13px;">Platform fee: 15–24% depending on vendor category. GST applicable as per prevailing rates. TDS deducted as per Income Tax Act.</p>
+  </div>
+
+  <!-- CONTACT -->
+  <div class="section" id="contact">
+    <div class="section-header">
+      <div class="section-num">6</div>
+      <h3>Contact & Legal</h3>
+    </div>
+    <p>For all queries, disputes, or compliance matters related to QuikBoys platform operations.</p>
+    <div class="contact-box">
+      <div class="contact-item">
+        <label>Legal Entity</label>
+        OMLVS Private Limited
+      </div>
+      <div class="contact-item">
+        <label>CIN</label>
+        U52520KA2022PTC159700
+      </div>
+      <div class="contact-item">
+        <label>Email</label>
+        <a href="mailto:partners@quikboys.com">partners@quikboys.com</a>
+      </div>
+      <div class="contact-item">
+        <label>Phone</label>
+        +91 89045 38989
+      </div>
+      <div class="contact-item">
+        <label>Registered Office</label>
+        Sahakarnagar, Bangalore – 560092
+      </div>
+      <div class="contact-item">
+        <label>Jurisdiction</label>
+        Courts of Hyderabad & Bangalore
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <strong>OMLVS Private Limited</strong> · QuikBoys Logistics · ONDC Network Participant ID: 11733-5571<br>
+  <span style="margin-top:8px; display:block;">© 2026 QuikBoys. All rights reserved. Last updated: March 2026.</span>
+</footer>
+
+</body>
+</html>
