@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+﻿import { Injectable, Logger } from '@nestjs/common';
 import {
   CircuitBreakerPolicy,
   ConsecutiveBreaker,
@@ -32,10 +32,12 @@ export interface BreakerState {
 @Injectable()
 export class ResilienceService {
   private readonly logger = new Logger(ResilienceService.name);
-  private readonly breakers = new Map<
-    string,
-    { circuit: CircuitBreakerPolicy; policy: IPolicy }
-  >();
+  private readonly breakers = new Map();
+
+  constructor() {
+    this.createBreaker({ name: 'ondc' });
+    this.createBreaker({ name: 'callback' });
+  }
 
   createBreaker(config: BreakerConfig): IPolicy {
     const {
@@ -47,27 +49,19 @@ export class ResilienceService {
       timeoutMs = 10000,
       maxConcurrency = 10,
     } = config;
-
     const retryPolicy = retry(handleAll, {
       maxAttempts: retryAttempts,
-      backoff: new ExponentialBackoff({
-        initialDelay: retryInitialDelayMs,
-      }),
+      backoff: new ExponentialBackoff({ initialDelay: retryInitialDelayMs }),
     });
-
     const circuit = circuitBreaker(handleAll, {
       halfOpenAfter: halfOpenAfterMs,
       breaker: new ConsecutiveBreaker(maxFailures),
     });
-
     const timeoutPolicy = timeout(timeoutMs, TimeoutStrategy.Aggressive);
     const bulkheadPolicy = bulkhead(maxConcurrency);
-
     const policy = wrap(retryPolicy, circuit, timeoutPolicy, bulkheadPolicy);
-
     this.breakers.set(name, { circuit, policy });
     this.logger.log(`Circuit breaker created: ${name}`);
-
     return policy;
   }
 
@@ -82,11 +76,7 @@ export class ResilienceService {
   getStates(): BreakerState[] {
     const states: BreakerState[] = [];
     for (const [name, { circuit }] of this.breakers) {
-      states.push({
-        name,
-        state: circuit.state.toString(),
-        failures: 0,
-      });
+      states.push({ name, state: circuit.state.toString(), failures: 0 });
     }
     return states;
   }
