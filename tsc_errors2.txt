@@ -1,0 +1,4 @@
+src/ondc/rsp/controllers/icici-bank-webhook.controller.ts(496,20): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"DriverWallet"> | undefined'.
+  Type 'null' is not assignable to type 'string | StringFilter<"DriverWallet"> | undefined'.
+src/ondc/rsp/controllers/payout-webhook.controller.ts(233,22): error TS2322: Type 'string | null' is not assignable to type 'string | StringFilter<"DriverWallet"> | undefined'.
+  Type 'null' is not assignable to type 'string | StringFilter<"DriverWallet"> | undefined'.

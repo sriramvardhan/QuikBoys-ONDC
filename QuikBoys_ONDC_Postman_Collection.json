@@ -1,0 +1,63 @@
+{
+  "info": {
+    "name": "QuikBoys ONDC Local APIs",
+    "description": "Example requests for the ONDC Beckn Protocol BPP",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "POST",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:3001/ondc/health",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["ondc", "health"]
+        }
+      }
+    },
+    {
+      "name": "1. Search (Find Logistics)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/ondc/search",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["ondc", "search"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:60232\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"search\",\n    \"core_version\": \"1.1.0\",\n    \"bap_id\": \"buyer-app.ondc.org\",\n    \"bap_uri\": \"https://buyer-app.ondc.org/protocol/v1\",\n    \"transaction_id\": \"b3c66f97-b6f7-4632-b7e6-764af332c918\",\n    \"message_id\": \"e3fc68e5-3957-4b77-bad7-ef57dbf5d848\",\n    \"timestamp\": \"2023-10-18T10:00:00.000Z\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"intent\": {\n      \"category\": {\n        \"id\": \"Standard Delivery\"\n      },\n      \"fulfillment\": {\n        \"type\": \"Delivery\",\n        \"start\": {\n          \"location\": {\n            \"gps\": \"12.971598, 77.594562\",\n            \"address\": {\n              \"area_code\": \"560001\"\n            }\n          }\n        },\n        \"end\": {\n          \"location\": {\n            \"gps\": \"12.914141, 77.641151\",\n            \"address\": {\n              \"area_code\": \"560102\"\n            }\n          }\n        }\n      }\n    }\n  }\n}"
+        }
+      }
+    },
+    {
+      "name": "2. Init (Initialize Order)",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "url": {
+          "raw": "http://localhost:3001/ondc/init",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "3001",
+          "path": ["ondc", "init"]
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"context\": {\n    \"domain\": \"nic2004:60232\",\n    \"country\": \"IND\",\n    \"city\": \"std:080\",\n    \"action\": \"init\",\n    \"core_version\": \"1.1.0\",\n    \"bap_id\": \"buyer-app.ondc.org\",\n    \"bap_uri\": \"https://buyer-app.ondc.org/protocol/v1\",\n    \"bpp_id\": \"seller-app.quikboys.com\",\n    \"bpp_uri\": \"https://quikboys.com/ondc\",\n    \"transaction_id\": \"b3c66f97-b6f7-4632-b7e6-764af332c918\",\n    \"message_id\": \"f2fc68e5-3957-4b77-bad7-ef57dbf5d849\",\n    \"timestamp\": \"2023-10-18T10:05:00.000Z\",\n    \"ttl\": \"PT30S\"\n  },\n  \"message\": {\n    \"order\": {\n      \"provider\": {\n        \"id\": \"quikboys-provider-1\"\n      },\n      \"items\": [\n        {\n          \"id\": \"standard-delivery\",\n          \"category_id\": \"Standard Delivery\"\n        }\n      ],\n      \"billing\": {\n        \"name\": \"John Doe\",\n        \"phone\": \"9876543210\",\n        \"email\": \"john@example.com\",\n        \"address\": {\n          \"name\": \"Home\",\n          \"building\": \"My Apartment\",\n          \"locality\": \"Indiranagar\",\n          \"city\": \"Bengaluru\",\n          \"state\": \"Karnataka\",\n          \"country\": \"IND\",\n          \"area_code\": \"560038\"\n        }\n      },\n      \"fulfillments\": [\n        {\n          \"id\": \"1\",\n          \"type\": \"Delivery\",\n          \"start\": {\n            \"location\": {\n              \"gps\": \"12.971598, 77.594562\",\n              \"address\": {\n                \"area_code\": \"560001\"\n              }\n            },\n            \"contact\": {\n              \"phone\": \"9876543210\"\n            }\n          },\n          \"end\": {\n            \"location\": {\n              \"gps\": \"12.914141, 77.641151\",\n              \"address\": {\n                \"area_code\": \"560102\"\n              }\n            },\n            \"contact\": {\n              \"phone\": \"9999999999\"\n            }\n          }\n        }\n      ]\n    }\n  }\n}"
+        }
+      }
+    }
+  ]
+}
